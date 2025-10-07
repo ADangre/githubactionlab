@@ -1,91 +1,72 @@
-name: ReactToGitHubpages # This is the name of the workflow
+name: React App CI/CD to GitHub Pages
 on:
-  push: # Triggers the workflow on push events to the repository
-    branches:
-      - main # Set the branch you want to deploy from
-    paths-ignore: # Ignore changes to the specified paths
-      - '.github/workflows/*' # Ignore changes to workflow files
-      - 'README.md' # Ignore changes to the README file
-  workflow_dispatch: # Allows manual triggering of the workflow from the GitHub Actions tab
-
+    push:
+        branches:
+            - main
+            - 'feature/**'
+        paths-ignore:
+            - '.github/workflows/*'  
+            - README.md  
+    workflow_dispatch:        
 jobs:
-  Test: # This is the ID of the job
-    runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
-    steps: # This section defines the steps that will be executed as part of the job
-      - name: Get code
-        uses: actions/checkout@v4 # Use the latest version of checkout action
-      - name: Install node js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Print node version
-        run: node -v
-      - name: Cache dependencies for faster installs for node npm
-        uses: actions/cache@v3
-        with:
-            path: ~/.npm # Cache the npm directory to speed up installs
-            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Create a unique key based on OS and hash of package-lock.json
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm run test
-      - name: Build step
-        run: echo "Build application..." # Replace this with your actual deployment commands
-      - name: Build project
-        run: npm run build
-  Build: # This is the ID of the job
-    runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
-    needs: Test # This job will only run if the 'test' job completes successfully
-    steps: # This section defines the steps that will be executed as part of the job
-      - name: Get code
-        uses: actions/checkout@v4 # Use the latest version of checkout action
-      - name: Install node js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Cache dependencies for faster installs for node npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm # Cache the npm directory to speed up installs
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Create a unique key based on OS and hash of package-lock.json
-      - name: Install dependencies
-        run: npm install
-      - name: Build Message
-        run: echo "build started..." # Replace this with your actual build commands
-      - name: Build project
-        run: npm run build
-      - name: Upload build artifact # Upload the build artifacts for use in other jobs
-        uses: actions/upload-artifact@v4 # Use the latest version of upload-artifact action
-        with:
-          name: github-pages # Name of the artifact
-          path: dist # Path to the build directory
-      - name: Build Complete
-        run: echo "Build complete!" # Replace this with your actual build commands
-            
-  Deploy: # This is the ID of the job
-    runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
-    needs: Build # This job will only run if the 'Build' job completes successfully
-    # steps: # This section defines the steps that will be executed as part of the job
-    #   - name: Download the artifact
-    #     uses: actions/download-artifact@v4 # Use the latest version of download-artifact
-    #     with:
-    #       name: github-pages # Name of the artifact to download
-    #       path: dist # Path where the artifact will be downloaded
-       
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Get Code
+              uses: actions/checkout@v4
+            - name: Install Node 20
+              uses: actions/setup-node@v4
+              with: 
+                node-version: 20
+            - name: Cache Dependencies
+              uses: actions/cache@v4
+              with: 
+                path: ~/.npm
+                key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+            - name: Install Dependencies
+              run: npm ci 
+            - name: Run Tests
+              run: npm run test
+    build:  
+        needs: test
+        runs-on: ubuntu-latest   
+        steps:
+          - name: Get Code
+            uses: actions/checkout@v4
+          - name: Install Node 20
+            uses: actions/setup-node@v4
+            with: 
+              node-version: 20
+          - name: Cache Dependencies
+            uses: actions/cache@v4
+            with: 
+              path: ~/.npm
+              key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          - name: Install Dependencies
+            run: npm ci 
+          - name: Build Project
+            run: npm run build  
+          - name: Upload Dist Artifact
+            uses: actions/upload-pages-artifact@v3
+            with:
+                name: github-pages
+                path: dist
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest   
         # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-        pages: write      # to deploy to Pages
-        id-token: write   # to verify the deployment originates from an appropriate source
+        permissions:
+          pages: write      # to deploy to Pages
+          id-token: write   # to verify the deployment originates from an appropriate source
     
         # Deploy to the github-pages environment
-    environment:
-        name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
+        environment:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
     
-    steps:
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v4 # Use the latest version of deploy-pages action
-          with:
-                token: ${{ secrets.GITHUB_TOKEN }} # Use the GITHUB_TOKEN secret to authenticate the deployment
-        
+        steps:
+          - name: Deploy to GitHub Pages
+            id: deployment
+            uses: actions/deploy-pages@v4 
+            with:
+                token: ${{secrets.GITHUB_TOKEN}}
