@@ -57,44 +57,35 @@ jobs:
       - name: Upload build artifact # Upload the build artifacts for use in other jobs
         uses: actions/upload-artifact@v4 # Use the latest version of upload-artifact action
         with:
-          name: dist-package # Name of the artifact
-          path: dist/ # Path to the build directory
+          name: github-pages # Name of the artifact
+          path: dist # Path to the build directory
       - name: Build Complete
         run: echo "Build complete!" # Replace this with your actual build commands
             
   Deploy: # This is the ID of the job
     runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
     needs: Build # This job will only run if the 'Build' job completes successfully
-    steps: # This section defines the steps that will be executed as part of the job
-      - name: Download the artifact
-        uses: actions/download-artifact@v4 # Use the latest version of download-artifact
-        with:
-          name: dist-package # Name of the artifact to download
-          path: dist-package # Path where the artifact will be downloaded
-      - name: Show downloaded files (debug) # Debug step to list files in the downloaded artifact
-        run: |
-          echo "cwd: $(pwd)" # Print the current working directory
-          ls -la
-          echo "dist-package contents:" # Print the contents of the dist-package directory
-          ls -la dist-package || true
-
-      - name: Fail if dist-package missing # Fail the job if the dist-package directory is missing
-        run: |
-          if [ ! -d "dist-package" ] ; then
-            echo "ERROR: dist-package not found"
-            exit 1
-          fi
-      - name: Check out repository (required for deploy action) # Check out the repository to deploy
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Deploy artifact using deploy pages action
-        uses: JamesIves/github-pages-deploy-action@v4.4.0 # Use the GitHub Pages deploy action
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: dist-package/dist # The folder the action should deploy.
-          clean: true # Clean the target branch before deploying.
-          token: ${{ secrets.GITHUB_TOKEN }} # GitHub automatically creates this secret to use in your workflow.
-      - name: Deploy Complete
-        run: echo "Deploy complete!" # Replace this with your actual deployment commands    
-           
+    # steps: # This section defines the steps that will be executed as part of the job
+    #   - name: Download the artifact
+    #     uses: actions/download-artifact@v4 # Use the latest version of download-artifact
+    #     with:
+    #       name: github-pages # Name of the artifact to download
+    #       path: dist # Path where the artifact will be downloaded
+       
+        # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+        pages: write      # to deploy to Pages
+        id-token: write   # to verify the deployment originates from an appropriate source
+    
+        # Deploy to the github-pages environment
+    environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4 # Use the latest version of deploy-pages action
+          with:
+                token: ${{ secrets.GITHUB_TOKEN }} # Use the GITHUB_TOKEN secret to authenticate the deployment
+        
