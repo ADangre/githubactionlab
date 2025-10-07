@@ -12,5 +12,6 @@ jobs: # This section defines the jobs that will be run as part of the workflow
       - name: Get code # This is the name of the step
         run: | # This indicates that the following lines are commands to be executed
           echo "Getting code..." # This is the command that will be executed in the step
-          git clone https://github.com/${{github.repository}}/ 
+          git clone https://github.com/${{github.repository}}.git
+          echo ${{ toJson(github) }} # This command prints the GitHub context in JSON format --- IGNORE ---
       
