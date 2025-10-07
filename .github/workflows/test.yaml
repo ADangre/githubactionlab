@@ -21,3 +21,11 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm run test
+ deploy:
+    needs: test # This job will only run if the 'test' job completes successfully
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment step
+        run: echo "Deploying application..." # Replace this with your actual deployment commands
+      - name: Build project
+        run: npm run build
