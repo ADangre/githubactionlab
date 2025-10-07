@@ -25,10 +25,26 @@ jobs:
         run: echo "Deploying application..." # Replace this with your actual deployment commands
       - name: Build project
         run: npm run build
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
+  Deploy: # This is the ID of the job
+    runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
+    steps: # This section defines the steps that will be executed as part of the job
+      - name: Get code
+        uses: actions/checkout@v4 # Use the latest version of checkout action
+      - name: Install node js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+    #   - name: Print node version
+    #     run: node -v
+      - name: Install dependencies
+        run: npm install
+    #   - name: Run tests
+    #     run: npm run test
+      - name: Deployment step
+        run: echo "Deploying application..." # Replace this with your actual deployment commands
       - name: Build project
-        run: echo "Deployment completed successfully."
+        run: npm run build
+      - name: Deployment Complete
+        run: echo "Deployment complete!"
+    needs: test # This job will only run if the 'test' job completes successfully
         
