@@ -21,7 +21,7 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm run test
- deploy:
+  deploy:
     needs: test # This job will only run if the 'test' job completes successfully
     runs-on: ubuntu-latest
     steps:
