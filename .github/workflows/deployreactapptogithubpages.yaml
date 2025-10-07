@@ -1,4 +1,4 @@
-name: Testing # This is the name of the workflow
+name: ReactToGitHubpages # This is the name of the workflow
 on:
   push: # Triggers the workflow on push events to the repository
     branches:
@@ -70,29 +70,13 @@ jobs:
         uses: actions/download-artifact@v4 # Use the latest version of download-artifact
         with:
           name: dist-package # Name of the artifact to download
-      - name: Deploy Message
-        run: echo "Deploy started..." # Replace this with your actual deployment commands
-      - name: Pushing the deployed code to S3 bucket
-        run: echo "Pushing the deployed code to S3 bucket" # Replace this with your actual deployment commands
-    #   - name: Configure AWS credentials
-    #     uses: aws-actions/configure-aws-credentials@v2
-    #     with:
-    #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Use GitHub Secrets to store sensitive information
-    #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Use GitHub Secrets to store sensitive information
-    #       aws-region: us-east-1 # Specify the AWS region
-
-    #   - name: Sync build to S3
-    #     run: |
-    #       # downloaded artifact is extracted into ./dist-package (uploaded from Build job as 'dist/')
-    #       ls -la dist-package || true
-    #       aws s3 sync dist-package/dist s3://${{ secrets.S3_BUCKET }} --delete --acl public-read
-
-      - name: Deploy Message
-        run: echo "Deploy started..." # Replace this with your actual deployment commands
-
-      - name: Pushing the deployed code to azure server
-        run: echo "Pushing the deployed code to azure server" # Replace this with your actual deployment commands
-            
+      - name: Deploy artifact using deploy pages action
+        uses: JamesIves/github-pages-deploy-action@v4.4.0 # Use the GitHub Pages deploy action
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: dist # The folder the action should deploy.
+          clean: true # Clean the target branch before deploying.
+          token: ${{ secrets.GITHUB_TOKEN }} # GitHub automatically creates this secret to use in your workflow.
       - name: Deploy Complete
         run: echo "Deploy complete!" # Replace this with your actual deployment commands    
            
