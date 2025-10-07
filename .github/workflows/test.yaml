@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allows manual triggering of the workflow from the GitHub Actions tab
 
 jobs:
-  test: # This is the ID of the job
+  Test: # This is the ID of the job
     runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
     steps: # This section defines the steps that will be executed as part of the job
       - name: Get code
@@ -17,17 +17,22 @@ jobs:
           node-version: '20'
       - name: Print node version
         run: node -v
+      - name: Cache dependencies for faster installs for node npm
+        uses: actions/cache@v3
+        with:
+            path: ~/.npm # Cache the npm directory to speed up installs
+            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Create a unique key based on OS and hash of package-lock.json
       - name: Install dependencies
         run: npm install
       - name: Run tests
         run: npm run test
-      - name: Deployment step
-        run: echo "Deploying application..." # Replace this with your actual deployment commands
+      - name: Build step
+        run: echo "Build application..." # Replace this with your actual deployment commands
       - name: Build project
         run: npm run build
   Deploy: # This is the ID of the job
     runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
-    needs: test # This job will only run if the 'test' job completes successfully
+    needs: Test # This job will only run if the 'test' job completes successfully
     steps: # This section defines the steps that will be executed as part of the job
       - name: Get code
         uses: actions/checkout@v4 # Use the latest version of checkout action
@@ -35,16 +40,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-    #   - name: Print node version
-    #     run: node -v
+      - name: Cache dependencies for faster installs for node npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm # Cache the npm directory to speed up installs
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Create a unique key based on OS and hash of package-lock.json
       - name: Install dependencies
         run: npm install
-    #   - name: Run tests
-    #     run: npm run test
       - name: Deployment step
         run: echo "Deploying application..." # Replace this with your actual deployment commands
       - name: Build project
         run: npm run build
       - name: Deployment Complete
         run: echo "Deployment complete! It's all done!" # Replace this with your actual deployment commands
-        
+            
