@@ -84,7 +84,10 @@ jobs:
             echo "ERROR: dist-package not found"
             exit 1
           fi
-
+      - name: Check out repository (required for deploy action) # Check out the repository to deploy
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Deploy artifact using deploy pages action
         uses: JamesIves/github-pages-deploy-action@v4.4.0 # Use the GitHub Pages deploy action
         with:
