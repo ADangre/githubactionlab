@@ -74,7 +74,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.4.0 # Use the GitHub Pages deploy action
         with:
           branch: gh-pages # The branch the action should deploy to.
-          folder: dist # The folder the action should deploy.
+          folder: dist-package # The folder the action should deploy.
           clean: true # Clean the target branch before deploying.
           token: ${{ secrets.GITHUB_TOKEN }} # GitHub automatically creates this secret to use in your workflow.
       - name: Deploy Complete
