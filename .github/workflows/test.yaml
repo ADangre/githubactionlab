@@ -27,6 +27,7 @@ jobs:
         run: npm run build
   deploy:
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Build project
         run: echo "Deployment completed successfully."
