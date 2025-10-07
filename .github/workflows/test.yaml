@@ -27,6 +27,7 @@ jobs:
         run: npm run build
   Deploy: # This is the ID of the job
     runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
+    needs: test # This job will only run if the 'test' job completes successfully
     steps: # This section defines the steps that will be executed as part of the job
       - name: Get code
         uses: actions/checkout@v4 # Use the latest version of checkout action
@@ -45,6 +46,5 @@ jobs:
       - name: Build project
         run: npm run build
       - name: Deployment Complete
-        run: echo "Deployment complete!"
-    needs: test # This job will only run if the 'test' job completes successfully
+        run: echo "Deployment complete! It's all done!" # Replace this with your actual deployment commands
         
