@@ -33,7 +33,7 @@ jobs:
         run: echo "Build application..." # Replace this with your actual deployment commands
       - name: Build project
         run: npm run build
-  Deploy: # This is the ID of the job
+  Build: # This is the ID of the job
     runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
     needs: Test # This job will only run if the 'test' job completes successfully
     steps: # This section defines the steps that will be executed as part of the job
@@ -50,10 +50,29 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Create a unique key based on OS and hash of package-lock.json
       - name: Install dependencies
         run: npm install
-      - name: Deployment step
-        run: echo "Deploying application..." # Replace this with your actual deployment commands
+      - name: Build Message
+        run: echo "build started..." # Replace this with your actual build commands
       - name: Build project
         run: npm run build
-      - name: Deployment Complete
-        run: echo "Deployment complete! It's all done!" # Replace this with your actual deployment commands
+      - name: Upload build artifact # Upload the build artifacts for use in other jobs
+        uses: actions/upload-artifact@v4 # Use the latest version of upload-artifact action
+        with:
+          name: dist-package # Name of the artifact
+          path: dist/ # Path to the build directory
+      - name: Build Complete
+        run: echo "Build complete!" # Replace this with your actual build commands
             
+  Deploy: # This is the ID of the job
+    runs-on: ubuntu-latest # Specifies the type of runner to use. The available runners are hosted by GitHub
+    needs: Build # This job will only run if the 'Build' job completes successfully
+    steps: # This section defines the steps that will be executed as part of the job
+      - name: Download the artifact
+        uses: actions/download-artifact@v4 # Use the latest version of download-artifact
+        with:
+          name: dist-package # Name of the artifact to download
+      - name: Deploy Message
+        run: echo "Deploy started..." # Replace this with your actual deployment commands
+      - name: Deploy Complete
+        run: echo "Deploy complete!" # Replace this with your actual deployment commands
+          
+           
